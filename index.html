@@ -161,7 +161,7 @@
 
   /* Scrollable table container */
   .table-outer{border:1px solid var(--border);border-radius:4px;overflow:hidden;}
-  .table-head-wrap{overflow:hidden;}
+  .table-head-wrap{overflow-x:auto;overflow-y:hidden;}
   .table-body-wrap{overflow-y:auto;overflow-x:auto;}
   .table-body-wrap::-webkit-scrollbar{width:5px;height:5px;}
   .table-body-wrap::-webkit-scrollbar-track{background:var(--navy-mid);}
@@ -287,11 +287,9 @@
     .search-box{min-width:0;width:100%;}
     .filter-select{width:100%;}
 
-    /* Table: hide member score columns on mobile, show in expand */
-    .col-member{display:none;}
-    .col-avg{min-width:80px !important;width:80px !important;}
-    .col-title{min-width:0 !important;width:auto !important;}
-    .col-author{min-width:0 !important;width:auto !important;}
+    /* Table: horizontal scroll, no column hiding needed */
+    .table-outer{overflow-x:auto;}
+    .head-table,.body-table{min-width:600px;}
     td{padding:10px 10px;}
     thead th{padding:10px 10px;font-size:9px;}
 
@@ -474,6 +472,7 @@ function syncColWidths(){
   const bWrap=document.getElementById('table-body-wrap');
   const hWrap=document.querySelector('.table-head-wrap');
   bWrap.addEventListener('scroll',()=>{hWrap.scrollLeft=bWrap.scrollLeft;},{passive:true});
+  hWrap.addEventListener('scroll',()=>{bWrap.scrollLeft=hWrap.scrollLeft;},{passive:true});
 }
 
 // ── DATA FETCH ──
