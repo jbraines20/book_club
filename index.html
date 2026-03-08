@@ -533,11 +533,9 @@ function renderStats(books){
   const grid=document.getElementById('stats-grid');
   const allScores=books.flatMap(b=>Object.values(b.memberScores).filter(x=>x!==null));
   const overallAvg=avg(allScores);
-  const genres=[...new Set(books.map(b=>b.genre).filter(Boolean))];
   const stats=[
     {value:books.length,unit:'',label:'Books Read',sub:'Total mission count'},
     {value:overallAvg?.toFixed(2)??'—',unit:'/4',label:'Avg Club Score',sub:'Across all members'},
-    {value:genres.length,unit:'',label:'Genres Explored',sub:'Unique categories'},
   ];
   grid.innerHTML=stats.map((s,i)=>`<div class="stat-card fade-in" style="animation-delay:${0.1*i}s"><div class="stat-value">${s.value}<span class="unit">${s.unit}</span></div><div class="stat-label">${s.label}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
 }
@@ -570,34 +568,35 @@ function renderCharts(books){
     </div>
   </div>`;
 
-  // 2) Member averages
-  const memberAvgs=MEMBERS.map(m=>{const sc=books.map(b=>b.memberScores[m]).filter(x=>x!==null);return{name:m,avg:avg(sc)};}).sort((a,b)=>(b.avg??0)-(a.avg??0));
-  const memberHTML=`<div class="chart-card fade-in delay-1"><div class="chart-title">// Avg Score by Member</div><div class="member-grid">${memberAvgs.map(m=>`<div class="member-row"><div class="bar-label">${m.name}</div><div class="bar-track"><div class="bar-fill" style="width:${m.avg?(m.avg/4*100):0}%;background:${scoreColor(m.avg??0)};"></div></div><div class="bar-val">${m.avg?.toFixed(2)??'—'}</div></div>`).join('')}</div></div>`;
+  // 2) Member averages — clickable bars showing top 10 books per member
+  const memberAvgs=MEMBERS.map(m=>{
+    const rated=books.filter(b=>b.memberScores[m]!==null).map(b=>({title:b.title,author:b.author,score:b.memberScores[m],avgScore:b.avgScore}));
+    const sc=rated.map(b=>b.score);
+    return{name:m,avg:avg(sc),rated};
+  }).sort((a,b)=>(b.avg??0)-(a.avg??0));
+  window._memberAvgs=memberAvgs;
+  const memberHTML=`<div class="chart-card fade-in delay-1" style="position:relative;">
+    <div class="chart-title">// Avg Score by Member <span style="font-size:9px;opacity:0.6">(click bar for top books)</span></div>
+    <div class="member-grid" id="member-bars">
+      ${memberAvgs.map(m=>`
+        <div class="member-row member-bar-clickable" data-member="${m.name}" style="cursor:pointer;" title="Click to see ${m.name}'s top 10 books">
+          <div class="bar-label">${m.name}</div>
+          <div class="bar-track" style="position:relative;">
+            <div class="bar-fill" style="width:${m.avg?(m.avg/4*100):0}%;background:${scoreColor(m.avg??0)};"></div>
+          </div>
+          <div class="bar-val">${m.avg?.toFixed(2)??'—'}</div>
+        </div>`).join('')}
+    </div>
+    <div class="hist-tooltip-overlay" id="member-tooltip">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span id="member-tt-title" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;"></span>
+        <button onclick="document.getElementById('member-tooltip').classList.remove('open')" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 9px;border-radius:2px;cursor:pointer;letter-spacing:1px;">&#10005;</button>
+      </div>
+      <div id="member-tt-bars" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;flex:1;"></div>
+    </div>
+  </div>`;
 
-  // 3) Genre donut
-  const genreCounts={};
-  books.forEach(b=>{if(b.genre)genreCounts[b.genre]=(genreCounts[b.genre]||0)+1;});
-  const sortedG=Object.entries(genreCounts).sort((a,b)=>b[1]-a[1]);
-  const total=Object.values(genreCounts).reduce((a,b)=>a+b,0)||1;
-  let cum=-Math.PI/2;const cx=70,cy=70,r=55,ir=30;
-  const slices=sortedG.map(([genre,count],i)=>{
-    const angle=(count/total)*2*Math.PI;
-    const x1=cx+r*Math.cos(cum),y1=cy+r*Math.sin(cum);cum+=angle;
-    const x2=cx+r*Math.cos(cum),y2=cy+r*Math.sin(cum);
-    const ix1=cx+ir*Math.cos(cum-angle),iy1=cy+ir*Math.sin(cum-angle),ix2=cx+ir*Math.cos(cum),iy2=cy+ir*Math.sin(cum);
-    const la=angle>Math.PI?1:0;
-    return{genre,count,color:GENRE_COLORS[i%GENRE_COLORS.length],d:`M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${la},1 ${x2},${y2} L${ix2},${iy2} A${ir},${ir} 0 ${la},0 ${ix1},${iy1}Z`};
-  });
-  const genreHTML=`<div class="chart-card fade-in delay-2"><div class="chart-title">// Genre Breakdown</div><div class="donut-wrap"><svg width="140" height="140" viewBox="0 0 140 140">${slices.map(s=>`<path d="${s.d}" fill="${s.color}" opacity="0.85" stroke="var(--navy-deep)" stroke-width="1.5"/>`).join('')}<text x="70" y="66" text-anchor="middle" fill="var(--text-primary)" font-family="Orbitron" font-size="14" font-weight="700">${books.length}</text><text x="70" y="80" text-anchor="middle" fill="var(--text-muted)" font-family="Share Tech Mono" font-size="7" letter-spacing="1">BOOKS</text></svg><div class="donut-legend">${slices.slice(0,8).map(s=>`<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div><span>${s.genre}</span><span class="legend-pct">${s.count} (${Math.round(s.count/total*100)}%)</span></div>`).join('')}${slices.length>8?`<div class="legend-item" style="color:var(--text-muted);">+${slices.length-8} more</div>`:''}</div></div></div>`;
-
-  // 4) Sub-genre bar
-  const subCounts={};
-  books.forEach(b=>{if(b.subgenre)subCounts[b.subgenre]=(subCounts[b.subgenre]||0)+1;});
-  const sortedSub=Object.entries(subCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const maxSub=sortedSub[0]?.[1]||1;
-  const subHTML=sortedSub.length?`<div class="chart-card full-width fade-in delay-3"><div class="chart-title">// Top Sub-Genres</div><div class="bar-chart">${sortedSub.map(([sg,c],i)=>`<div class="bar-row"><div class="bar-label" title="${sg}">${sg}</div><div class="bar-track"><div class="bar-fill" style="width:${c/maxSub*100}%;background:${GENRE_COLORS[i%GENRE_COLORS.length]};"></div></div><div class="bar-val">${c}</div></div>`).join('')}</div></div>`:'';
-
-  // 5) Decade histogram — use year from sheet + published date from API cache
+  // 3) Decade histogram — use year from sheet + published date from API cache
   const decadeMap={};
   books.forEach(b=>{
     // Try year from sheet first, then API publishedDate
@@ -635,7 +634,7 @@ function renderCharts(books){
     </div>`;
   }
 
-  grid.innerHTML=histHTML+memberHTML+genreHTML+subHTML+decadeHTML;
+  grid.innerHTML=histHTML+memberHTML+decadeHTML;
 
   // Wire histogram bar clicks
   const bucketColors={1:'#ff6060',2:'#f0a030',3:'#40c880',4:'var(--cyan)'};
@@ -658,6 +657,31 @@ function renderCharts(books){
       }).join('');
       tooltip.classList.add('open');
     });
+  });
+
+  // Wire member bar clicks → top 10 books overlay
+  grid.addEventListener('click', e => {
+    const row = e.target.closest('.member-bar-clickable');
+    if(!row) return;
+    const memberName = row.dataset.member;
+    const memberData = (window._memberAvgs||[]).find(m=>m.name===memberName);
+    if(!memberData) return;
+    const top10 = [...memberData.rated].sort((a,b)=>b.score-a.score).slice(0,10);
+    const tooltip = document.getElementById('member-tooltip');
+    document.getElementById('member-tt-title').textContent = `${memberName} — Top ${top10.length} Rated`;
+    document.getElementById('member-tt-bars').innerHTML = top10.map((b,i) => {
+      const pct = (b.score/4*100).toFixed(1);
+      const color = scoreColor(b.score);
+      const short = b.title.length>34 ? b.title.slice(0,32)+'…' : b.title;
+      const rank = ['🥇','🥈','🥉'][i] || `${i+1}.`;
+      return `<div style="display:grid;grid-template-columns:24px 1fr 90px 36px;align-items:center;gap:8px;">
+        <div style="font-size:13px;text-align:center;">${rank}</div>
+        <div style="font-size:12px;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${b.title}">${short}</div>
+        <div style="height:12px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:2px;opacity:0.85;"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:${color};text-align:right;">${b.score}</div>
+      </div>`;
+    }).join('');
+    tooltip.classList.add('open');
   });
 }
 
@@ -759,12 +783,10 @@ function renderTable(books){
 
   const COL_DEFS=[
     {key:'_expand',label:'',w:'32px'},
-    {key:'title',label:'Book Title',w:'220px'},
-    {key:'author',label:'Author',w:'160px'},
-    {key:'year',label:'Year',w:'60px'},
-    {key:'genre',label:'Genre',w:'180px'},
+    {key:'title',label:'Book Title',w:'260px'},
+    {key:'author',label:'Author',w:'180px'},
     ...MEMBERS.map(m=>({key:`member_${m}`,label:m,w:'52px'})),
-    {key:'avgScore',label:'Avg',w:'100px'},
+    {key:'avgScore',label:'Avg',w:'110px'},
   ];
 
   const head=document.getElementById('table-head');
@@ -781,10 +803,8 @@ function renderTable(books){
     const colSpan=COL_DEFS.length;
     return`<tr class="book-row" data-idx="${i}">
       <td class="expand-toggle" style="width:32px;min-width:32px;">▶</td>
-      <td class="book-title" style="min-width:220px;"><a href="${grBookUrl(b.title,b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.title}</a></td>
-      <td class="author" style="min-width:160px;"><a href="${grAuthorUrl(b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.author||'—'}</a></td>
-      <td class="year" style="min-width:60px;">${b.year||'—'}</td>
-      <td class="genre" style="min-width:180px;">${b.genre?`<span class="genre-tag">${b.genre}</span>`:'—'}${b.subgenre?`<span class="genre-tag" style="margin-left:4px;opacity:0.7">${b.subgenre}</span>`:''}</td>
+      <td class="book-title" style="min-width:260px;"><a href="${grBookUrl(b.title,b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.title}</a></td>
+      <td class="author" style="min-width:180px;"><a href="${grAuthorUrl(b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.author||'—'}</a></td>
       ${MEMBERS.map(m=>{const s=b.memberScores[m];return`<td class="score" style="min-width:52px;width:52px;">${s!==null?`<span class="score-dot score-${s}">${s}</span>`:'<span class="score-na">—</span>'}</td>`;}).join('')}
       <td class="avg-score" style="min-width:100px;">
         <div class="avg-bar-wrap"><span style="color:${bc};min-width:34px;">${avgDisplay}</span>
@@ -834,8 +854,7 @@ async function loadExpand(book,idx){
   const detail=await fetchBookDetails(book.title,book.author);
   descEl.dataset.loaded='true';
   descEl.innerHTML=detail?.description?`<p>${detail.description}</p>`:`<p style="color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;">// No description found in galactic archive</p>`;
-  const genre=book.genre||detail?.categories?.[0]||'—';
-  metaEl.innerHTML=`${detail?.grRating?`<div class="meta-item"><div class="meta-label">Google Books Rating</div><div class="meta-value">${starsHtml(detail.grRating)} <span style="color:var(--text-muted);font-size:10px;">(${(detail.grRatingCount||0).toLocaleString()})</span></div></div>`:''}<div class="meta-item"><div class="meta-label">Genre</div><div class="meta-value">${genre}</div></div><div class="meta-item"><div class="meta-label">Sub-Genre</div><div class="meta-value">${book.subgenre||'—'}</div></div>${detail?.pageCount?`<div class="meta-item"><div class="meta-label">Pages</div><div class="meta-value">${detail.pageCount}</div></div>`:''}<div class="meta-item"><div class="meta-label">Goodreads</div><div class="meta-value"><a href="${grBookUrl(book.title,book.author)}" target="_blank" rel="noopener">View on Goodreads ↗</a></div></div>`;
+  metaEl.innerHTML=`${detail?.grRating?`<div class="meta-item"><div class="meta-label">Google Books Rating</div><div class="meta-value">${starsHtml(detail.grRating)} <span style="color:var(--text-muted);font-size:10px;">(${(detail.grRatingCount||0).toLocaleString()})</span></div></div>`:''  }${detail?.pageCount?`<div class="meta-item"><div class="meta-label">Pages</div><div class="meta-value">${detail.pageCount}</div></div>`:''}<div class="meta-item"><div class="meta-label">Goodreads</div><div class="meta-value"><a href="${grBookUrl(book.title,book.author)}" target="_blank" rel="noopener">View on Goodreads ↗</a></div></div>`;
 }
 
 // ── FILTERS ──
