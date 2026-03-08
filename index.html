@@ -254,7 +254,6 @@
   <a data-page="stats" class="active">Mission Stats</a>
   <a data-page="analysis">Data Analysis</a>
   <a data-page="contrarian">Contrarian Index</a>
-  <a data-page="log">Mission Log</a>
 </nav>
 
 <div class="page-wrapper">
@@ -268,11 +267,52 @@
   </div>
 
   <!-- PAGE: STATS -->
+  <!-- PAGE: STATS + MISSION LOG -->
   <div class="page active" id="page-stats">
     <div class="section fade-in">
       <div class="section-label">// Transmission Received</div>
       <div class="section-title">Mission Statistics</div>
       <div class="stats-grid" id="stats-grid"></div>
+    </div>
+    <div class="section fade-in delay-1" style="padding-bottom:60px;">
+      <div class="section-label">// Archive</div>
+      <div class="section-title">Mission Log — All Books</div>
+      <div class="score-legend">
+        <div class="legend-score"><span class="score-dot score-4">4</span> Great</div>
+        <div class="legend-score"><span class="score-dot score-3">3</span> Good</div>
+        <div class="legend-score"><span class="score-dot score-2">2</span> Ok</div>
+        <div class="legend-score"><span class="score-dot score-1">1</span> Bad / DNF</div>
+        <div class="legend-score" style="margin-left:12px;color:var(--text-muted)">&#9658; Click any row for details</div>
+      </div>
+      <div class="table-controls">
+        <input type="text" class="search-box" id="search-input" placeholder="Search books, authors, genres...">
+        <select class="filter-select" id="genre-filter"><option value="">All Genres</option></select>
+        <select class="filter-select" id="year-filter"><option value="">All Years</option></select>
+        <select class="filter-select" id="score-filter">
+          <option value="">All Scores</option>
+          <option value="4">Great (4)</option>
+          <option value="3">Good (3+)</option>
+          <option value="2">Ok (2+)</option>
+        </select>
+      </div>
+      <div class="table-outer">
+        <div class="table-head-wrap">
+          <table class="head-table" id="head-table">
+            <colgroup id="col-group-head"></colgroup>
+            <thead id="table-head"></thead>
+          </table>
+        </div>
+        <div class="table-body-wrap" id="table-body-wrap">
+          <table class="body-table" id="body-table">
+            <colgroup id="col-group-body"></colgroup>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="table-count">-- books</span>
+          <span>ZBT SCI-FI BOOK CLUB - MISSION LOG</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -293,59 +333,14 @@
       <div class="contrarian-intro">
         The <strong>Contrarian Index</strong> measures how often each member disagrees with group consensus.
         For every book, we calculate how far each member's score deviates from the club average.
-        These absolute deviations are averaged across all books rated — giving one contrarian score per member.
-        Near <strong>0</strong> = always agrees with the group &nbsp;·&nbsp; Higher = more of an outlier.
+        These absolute deviations are averaged across all books rated, giving one contrarian score per member.
+        Near <strong>0</strong> = always agrees with the group. Higher = more of an outlier.
         <strong>Directional bias</strong> shows whether a member tends to rate above or below average.
       </div>
       <div id="contrarian-content"></div>
     </div>
   </div>
 
-  <!-- PAGE: MISSION LOG -->
-  <div class="page" id="page-log">
-    <div class="section fade-in" style="padding-bottom:60px;">
-      <div class="section-label">// Archive</div>
-      <div class="section-title">Mission Log — All Books</div>
-      <div class="score-legend">
-        <div class="legend-score"><span class="score-dot score-4">4</span> Great</div>
-        <div class="legend-score"><span class="score-dot score-3">3</span> Good</div>
-        <div class="legend-score"><span class="score-dot score-2">2</span> Ok</div>
-        <div class="legend-score"><span class="score-dot score-1">1</span> Bad / DNF</div>
-        <div class="legend-score" style="margin-left:12px;color:var(--text-muted)">▶ Click any row for details</div>
-      </div>
-      <div class="table-controls">
-        <input type="text" class="search-box" id="search-input" placeholder="Search books, authors, genres...">
-        <select class="filter-select" id="genre-filter"><option value="">All Genres</option></select>
-        <select class="filter-select" id="year-filter"><option value="">All Years</option></select>
-        <select class="filter-select" id="score-filter">
-          <option value="">All Scores</option>
-          <option value="4">★★★★ Great (4)</option>
-          <option value="3">★★★ Good (3+)</option>
-          <option value="2">★★ Ok (2+)</option>
-        </select>
-      </div>
-      <div class="table-outer">
-        <!-- Frozen header -->
-        <div class="table-head-wrap">
-          <table class="head-table" id="head-table">
-            <colgroup id="col-group-head"></colgroup>
-            <thead id="table-head"></thead>
-          </table>
-        </div>
-        <!-- Scrollable body -->
-        <div class="table-body-wrap" id="table-body-wrap">
-          <table class="body-table" id="body-table">
-            <colgroup id="col-group-body"></colgroup>
-            <tbody id="table-body"></tbody>
-          </table>
-        </div>
-        <div class="table-footer">
-          <span id="table-count">— books</span>
-          <span>ZBT SCI-FI BOOK CLUB · MISSION LOG</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </div><!-- /page-wrapper -->
 
 <script>
@@ -376,8 +371,8 @@ function showPage(id){
   if(page){page.classList.add('active');}
   const link=document.querySelector(`nav a[data-page="${id}"]`);
   if(link){link.classList.add('active');}
-  // Sync table column widths when switching to log
-  if(id==='log') setTimeout(syncColWidths,50);
+  // Sync table column widths when switching to stats (which now contains the table)
+  if(id==='stats') setTimeout(syncColWidths,50);
 }
 document.querySelectorAll('nav a[data-page]').forEach(a=>{
   a.addEventListener('click',()=>showPage(a.dataset.page));
@@ -414,9 +409,26 @@ function parseGviz(gviz){
   return{cols,rows};
 }
 
-// ── GOOGLE BOOKS (multi-strategy) ──
-function extractBookInfo(item){
-  if(!item)return null;
+// ── BOOK METADATA: Google Books + Open Library fallback ──
+// To use Google Books API: replace null below with your API key string
+// Get a free key at: console.cloud.google.com → Enable "Books API" → Credentials → Create API Key
+const GOOGLE_BOOKS_API_KEY = 'AIzaSyAwKbN1OSIk_J7X6fTl8vtAq1gPX8bIiZE';
+
+async function gbFetch(q){
+  try{
+    const keyParam = GOOGLE_BOOKS_API_KEY ? `&key=${GOOGLE_BOOKS_API_KEY}` : '';
+    const url=`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=3&langRestrict=en${keyParam}`;
+    const res=await fetch(url);
+    if(!res.ok) return null;
+    const data=await res.json();
+    if(data.error) return null;
+    const items=data.items||[];
+    return items.find(it=>it.volumeInfo?.description)||items[0]||null;
+  }catch(e){return null;}
+}
+
+function extractGBInfo(item){
+  if(!item) return null;
   const info=item.volumeInfo;
   const rawDesc=info.description||'';
   return{
@@ -426,28 +438,72 @@ function extractBookInfo(item){
     pageCount:info.pageCount??null,
     publishedDate:info.publishedDate??null,
     categories:info.categories??[],
+    source:'Google Books',
   };
 }
-async function gbFetch(q){
+
+// Open Library API — free, no key needed, great sci-fi coverage
+async function openLibraryFetch(title, author){
   try{
-    const url=`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=3&langRestrict=en`;
-    const res=await fetch(url);
-    if(!res.ok)return null;
-    const data=await res.json();
-    const items=data.items||[];
-    return items.find(it=>it.volumeInfo?.description)||items[0]||null;
+    const q = encodeURIComponent(`${title}${author?' '+author:''}`);
+    const res = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=3&fields=key,title,author_name,first_publish_year,subject,number_of_pages_median`);
+    if(!res.ok) return null;
+    const data = await res.json();
+    const doc = data.docs?.[0];
+    if(!doc) return null;
+
+    // Fetch work description separately
+    let description = null;
+    if(doc.key){
+      try{
+        const wRes = await fetch(`https://openlibrary.org${doc.key}.json`);
+        if(wRes.ok){
+          const wData = await wRes.json();
+          const raw = wData.description;
+          if(raw){
+            const txt = typeof raw === 'string' ? raw : raw.value || '';
+            description = txt.replace(/\n/g,' ').slice(0,700)+(txt.length>700?'\u2026':'');
+          }
+        }
+      }catch(e){}
+    }
+
+    return{
+      description,
+      grRating: null,
+      grRatingCount: null,
+      pageCount: doc.number_of_pages_median??null,
+      publishedDate: doc.first_publish_year ? String(doc.first_publish_year) : null,
+      categories: doc.subject ? doc.subject.slice(0,3) : [],
+      source:'Open Library',
+    };
   }catch(e){return null;}
 }
+
 async function fetchBookDetails(title,author){
-  const key=`${title}|||${author}`;
-  if(bookDetailCache[key]!==undefined)return bookDetailCache[key];
+  const cacheKey=`${title}|||${author}`;
+  if(bookDetailCache[cacheKey]!==undefined) return bookDetailCache[cacheKey];
   try{
-    let item=author?await gbFetch(`intitle:${title}+inauthor:${author}`):null;
-    if(!item?.volumeInfo?.description)item=await gbFetch(`intitle:${title}`);
-    if(!item?.volumeInfo?.description)item=await gbFetch(`${title}${author?' '+author:''}`);
-    const detail=extractBookInfo(item);
-    bookDetailCache[key]=detail;return detail;
-  }catch(e){bookDetailCache[key]=null;return null;}
+    let detail = null;
+
+    // Try Google Books first (works well with an API key; may be rate-limited without one)
+    let gbItem = author ? await gbFetch(`intitle:${title}+inauthor:${author}`) : null;
+    if(!gbItem?.volumeInfo?.description) gbItem = await gbFetch(`intitle:${title}`);
+    if(gbItem?.volumeInfo?.description) detail = extractGBInfo(gbItem);
+
+    // Fall back to Open Library if Google Books returned nothing useful
+    if(!detail?.description){
+      const olDetail = await openLibraryFetch(title, author);
+      if(olDetail?.description) detail = olDetail;
+      else if(!detail) detail = olDetail; // use OL even without description for pageCount etc
+    }
+
+    bookDetailCache[cacheKey] = detail;
+    return detail;
+  }catch(e){
+    bookDetailCache[cacheKey]=null;
+    return null;
+  }
 }
 
 // ── HELPERS ──
