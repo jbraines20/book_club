@@ -230,10 +230,91 @@
   .fade-in{opacity:0;animation:fadeUp 0.5s ease forwards;}
   .delay-1{animation-delay:0.08s}.delay-2{animation-delay:0.16s}.delay-3{animation-delay:0.24s}
 
+  /* Hide mobile-only elements on desktop */
+  .mobile-scores-grid{display:none;}
+
   /* Scanlines */
   body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000;}
   ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--navy-mid)}::-webkit-scrollbar-thumb{background:var(--blue-accent);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--cyan-dim)}
-  @media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr}.bar-row{grid-template-columns:60px 1fr 40px}td{padding:10px 10px}thead th{padding:12px 10px}}
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media(max-width:640px){
+    /* Layout */
+    .page-wrapper{padding:0 12px;}
+    header{padding:36px 12px 28px;}
+    .header-eyebrow{font-size:9px;letter-spacing:2px;}
+    .section{padding:28px 0 20px;}
+    .section-title{font-size:1.1rem;margin-bottom:18px;}
+
+    /* Nav — full width pills */
+    nav{gap:6px;padding:12px 0;}
+    nav a{font-size:9px;letter-spacing:2px;padding:7px 12px;}
+
+    /* Stat cards — 2 col */
+    .stats-grid{grid-template-columns:1fr 1fr;gap:10px;}
+    .stat-value{font-size:1.6rem;}
+    .stat-card{padding:16px 14px;}
+
+    /* Charts — single column */
+    .charts-grid{grid-template-columns:1fr;gap:14px;}
+    .chart-card{padding:16px 14px;}
+    .chart-card.full-width{grid-column:1;}
+
+    /* Member bar rows — tighter label */
+    .member-row{grid-template-columns:58px 1fr 40px;gap:8px;}
+    .bar-row{grid-template-columns:58px 1fr 36px;gap:8px;}
+    .bar-label{font-size:10px;}
+    .bar-val{font-size:10px;}
+
+    /* Decade histogram labels smaller */
+    .decade-label{font-size:7px;}
+    .decade-count{font-size:7px;}
+    .decade-val{font-size:8px;}
+
+    /* Contrarian inline card — stack vertically */
+    .contrarian-main-card{grid-template-columns:1fr;gap:20px;}
+    .mini-podium-wrap{width:100%;}
+
+    /* Deviation table — scrollable horizontally */
+    .deviation-table-wrap{overflow-x:auto;}
+
+    /* Score legend — compact */
+    .score-legend{gap:10px;}
+    .legend-score{font-size:9px;}
+
+    /* Table controls — stack */
+    .table-controls{flex-direction:column;gap:8px;}
+    .search-box{min-width:0;width:100%;}
+    .filter-select{width:100%;}
+
+    /* Table: hide member score columns on mobile, show in expand */
+    .col-member{display:none;}
+    .col-avg{min-width:80px !important;width:80px !important;}
+    .col-title{min-width:0 !important;width:auto !important;}
+    .col-author{min-width:0 !important;width:auto !important;}
+    td{padding:10px 10px;}
+    thead th{padding:10px 10px;font-size:9px;}
+
+    /* Expand panel — stack description + meta */
+    .expand-content{grid-template-columns:1fr;gap:14px;padding:14px 14px 18px;}
+    .expand-meta{min-width:0;}
+
+    /* Mobile scores grid inside expand */
+    .mobile-scores-grid{display:grid !important;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+    .mobile-score-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;background:rgba(45,156,255,0.05);border:1px solid var(--border);border-radius:3px;}
+    .mobile-score-name{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;}
+
+    /* Tooltip overlays — full screen on mobile */
+    .hist-tooltip-overlay{position:fixed;top:0;left:0;right:0;bottom:0;border-radius:0;z-index:200;}
+
+    /* Table footer — hide tagline */
+    .table-footer-tagline{display:none;}
+  }
+
+  @media(max-width:400px){
+    nav a{font-size:8px;letter-spacing:1px;padding:6px 8px;}
+    .stats-grid{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -310,7 +391,7 @@
         </div>
         <div class="table-footer">
           <span id="table-count">-- books</span>
-          <span>ZBT SCI-FI BOOK CLUB - MISSION LOG</span>
+          <span class="table-footer-tagline">ZBT SCI-FI BOOK CLUB - MISSION LOG</span>
         </div>
       </div>
     </div>
@@ -781,18 +862,19 @@ function renderTable(books){
     if(va<vb)return sortDir;if(va>vb)return-sortDir;return 0;
   });
 
+  const isMobile=()=>window.innerWidth<=640;
   const COL_DEFS=[
-    {key:'_expand',label:'',w:'32px'},
-    {key:'title',label:'Book Title',w:'260px'},
-    {key:'author',label:'Author',w:'180px'},
-    ...MEMBERS.map(m=>({key:`member_${m}`,label:m,w:'52px'})),
-    {key:'avgScore',label:'Avg',w:'110px'},
+    {key:'_expand',label:'',w:'32px',cls:''},
+    {key:'title',label:'Book Title',w:'260px',cls:'col-title'},
+    {key:'author',label:'Author',w:'180px',cls:'col-author'},
+    ...MEMBERS.map(m=>({key:`member_${m}`,label:m,w:'52px',cls:'col-member'})),
+    {key:'avgScore',label:'Avg',w:'110px',cls:'col-avg'},
   ];
 
   const head=document.getElementById('table-head');
   head.innerHTML=`<tr>${COL_DEFS.map(c=>{
     if(c.key==='_expand')return`<th style="width:${c.w};cursor:default;min-width:${c.w};"></th>`;
-    return`<th data-key="${c.key}" class="${sortCol===c.key?'sorted':''}" style="min-width:${c.w};width:${c.w};">${c.label}<span class="sort-icon">${sortCol===c.key?(sortDir===1?'▲':'▼'):'⇅'}</span></th>`;
+    return`<th data-key="${c.key}" class="${[c.cls,sortCol===c.key?'sorted':''].filter(Boolean).join(' ')}" style="min-width:${c.w};width:${c.w};">${c.label}<span class="sort-icon">${sortCol===c.key?(sortDir===1?'▲':'▼'):'⇅'}</span></th>`;
   }).join('')}</tr>`;
 
   const body=document.getElementById('table-body');
@@ -803,10 +885,10 @@ function renderTable(books){
     const colSpan=COL_DEFS.length;
     return`<tr class="book-row" data-idx="${i}">
       <td class="expand-toggle" style="width:32px;min-width:32px;">▶</td>
-      <td class="book-title" style="min-width:260px;"><a href="${grBookUrl(b.title,b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.title}</a></td>
-      <td class="author" style="min-width:180px;"><a href="${grAuthorUrl(b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.author||'—'}</a></td>
-      ${MEMBERS.map(m=>{const s=b.memberScores[m];return`<td class="score" style="min-width:52px;width:52px;">${s!==null?`<span class="score-dot score-${s}">${s}</span>`:'<span class="score-na">—</span>'}</td>`;}).join('')}
-      <td class="avg-score" style="min-width:100px;">
+      <td class="book-title col-title" style="min-width:260px;"><a href="${grBookUrl(b.title,b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.title}</a></td>
+      <td class="author col-author" style="min-width:180px;"><a href="${grAuthorUrl(b.author)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${b.author||'—'}</a></td>
+      ${MEMBERS.map(m=>{const s=b.memberScores[m];return`<td class="score col-member" style="min-width:52px;width:52px;">${s!==null?`<span class="score-dot score-${s}">${s}</span>`:'<span class="score-na">—</span>'}</td>`;}).join('')}
+      <td class="avg-score col-avg" style="min-width:110px;width:110px;">
         <div class="avg-bar-wrap"><span style="color:${bc};min-width:34px;">${avgDisplay}</span>
         <div class="avg-bar-track"><div class="avg-bar-fill" style="width:${bw}%;background:${bc}"></div></div></div>
       </td>
@@ -853,7 +935,22 @@ async function loadExpand(book,idx){
   if(descEl.dataset.loaded==='true')return;
   const detail=await fetchBookDetails(book.title,book.author);
   descEl.dataset.loaded='true';
+  // Description
   descEl.innerHTML=detail?.description?`<p>${detail.description}</p>`:`<p style="color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;">// No description found in galactic archive</p>`;
+
+  // Member scores grid (always rendered; CSS hides it on desktop, shows on mobile)
+  const scoresGridHtml=`<div class="mobile-scores-grid">
+    ${MEMBERS.map(m=>{
+      const s=book.memberScores[m];
+      return`<div class="mobile-score-item">
+        <div class="mobile-score-name">${m}</div>
+        ${s!==null?`<span class="score-dot score-${s}">${s}</span>`:'<span class="score-na">—</span>'}
+      </div>`;
+    }).join('')}
+  </div>`;
+  // Append scores grid below description
+  descEl.innerHTML += scoresGridHtml;
+
   metaEl.innerHTML=`${detail?.grRating?`<div class="meta-item"><div class="meta-label">Google Books Rating</div><div class="meta-value">${starsHtml(detail.grRating)} <span style="color:var(--text-muted);font-size:10px;">(${(detail.grRatingCount||0).toLocaleString()})</span></div></div>`:''  }${detail?.pageCount?`<div class="meta-item"><div class="meta-label">Pages</div><div class="meta-value">${detail.pageCount}</div></div>`:''}<div class="meta-item"><div class="meta-label">Goodreads</div><div class="meta-value"><a href="${grBookUrl(book.title,book.author)}" target="_blank" rel="noopener">View on Goodreads ↗</a></div></div>`;
 }
 
