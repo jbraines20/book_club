@@ -233,6 +233,140 @@
   /* Hide mobile-only elements on desktop */
   .mobile-scores-grid{display:none;}
 
+  /* ── FLOAT ACTION BUTTON ── */
+  #fab{
+    position:fixed;bottom:28px;right:28px;z-index:500;
+    width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(135deg,var(--blue-accent),var(--cyan));
+    color:#fff;font-size:28px;line-height:1;
+    border:none;cursor:pointer;
+    box-shadow:0 4px 20px rgba(0,212,255,0.4),0 2px 8px rgba(0,0,0,0.4);
+    transition:transform 0.2s ease,box-shadow 0.2s ease;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(0,212,255,0.6);}
+  #fab.open{transform:rotate(45deg);}
+
+  /* ── MODAL BACKDROP ── */
+  #modal-backdrop{
+    display:none;position:fixed;inset:0;z-index:600;
+    background:rgba(2,11,24,0.75);backdrop-filter:blur(4px);
+  }
+  #modal-backdrop.open{display:block;}
+
+  /* ── MODAL ── */
+  #data-modal{
+    display:none;position:fixed;z-index:700;
+    bottom:96px;right:28px;
+    width:min(520px, calc(100vw - 32px));
+    max-height:calc(100vh - 120px);
+    overflow-y:auto;
+    background:linear-gradient(160deg,#0d2a4a,#061628);
+    border:1px solid var(--border-bright);
+    border-radius:8px;
+    box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 40px rgba(0,212,255,0.1);
+    animation:modalSlideUp 0.25s ease;
+  }
+  #data-modal.open{display:block;}
+  @keyframes modalSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  .modal-header{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  }
+  .modal-close{
+    background:none;border:1px solid var(--border);color:var(--text-muted);
+    width:28px;height:28px;border-radius:2px;cursor:pointer;font-size:12px;
+    transition:color 0.2s,border-color 0.2s;flex-shrink:0;
+  }
+  .modal-close:hover{color:var(--star-white);border-color:var(--border-bright);}
+
+  /* Modal tabs */
+  .modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);}
+  .modal-tab{
+    flex:1;padding:11px 8px;background:none;border:none;cursor:pointer;
+    font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;
+    color:var(--text-muted);text-transform:uppercase;
+    border-bottom:2px solid transparent;transition:all 0.2s;
+  }
+  .modal-tab:hover{color:var(--text-secondary);}
+  .modal-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+
+  /* Modal panels */
+  .modal-panel{display:none;padding:20px 24px;}
+  .modal-panel.active{display:block;}
+  .modal-hint{font-size:12px;color:var(--text-muted);margin-bottom:18px;line-height:1.6;}
+
+  /* Book entries */
+  .book-entry{
+    background:rgba(45,156,255,0.04);border:1px solid var(--border);
+    border-radius:4px;padding:14px 16px;margin-bottom:10px;
+    transition:border-color 0.2s;
+  }
+  .book-entry:has(input[type=radio]:checked){
+    border-color:var(--cyan-dim);background:rgba(0,212,255,0.06);
+  }
+  .book-entry-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .entry-num{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;}
+  .entry-radio-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;}
+  .entry-radio-wrap input[type=radio]{accent-color:var(--cyan);width:14px;height:14px;cursor:pointer;}
+  .radio-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-secondary);text-transform:uppercase;}
+
+  /* Form layout */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:4px;}
+  @media(max-width:480px){.form-grid-3{grid-template-columns:1fr;}}
+  .form-field{display:flex;flex-direction:column;gap:5px;}
+  .field-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;}
+
+  /* Inputs */
+  .modal-input,.modal-select{
+    background:var(--navy-deep);border:1px solid var(--border);border-radius:3px;
+    padding:9px 12px;color:var(--text-primary);
+    font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.5px;
+    outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;
+  }
+  .modal-input::placeholder{color:var(--text-muted);}
+  .modal-input:focus,.modal-select:focus{border-color:var(--cyan-dim);box-shadow:0 0 8px rgba(0,212,255,0.15);}
+  .modal-select option{background:var(--navy-panel);}
+
+  /* Actions */
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--blue-accent),var(--cyan-dim));
+    color:var(--star-white);border:none;border-radius:3px;
+    padding:9px 20px;font-family:'Share Tech Mono',monospace;font-size:10px;
+    letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+    transition:opacity 0.2s,transform 0.1s;
+  }
+  .btn-primary:hover{opacity:0.85;}
+  .btn-primary:active{transform:scale(0.97);}
+  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-secondary{
+    background:none;color:var(--text-muted);border:1px solid var(--border);
+    border-radius:3px;padding:9px 16px;font-family:'Share Tech Mono',monospace;
+    font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+    transition:color 0.2s,border-color 0.2s;
+  }
+  .btn-secondary:hover{color:var(--text-secondary);border-color:var(--border-bright);}
+
+  /* Status messages */
+  .form-status{
+    margin-top:14px;padding:10px 14px;border-radius:3px;
+    font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;line-height:1.5;
+  }
+  .form-status.success{background:rgba(64,200,128,0.08);border:1px solid rgba(64,200,128,0.25);color:#40c880;}
+  .form-status.error{background:rgba(255,96,96,0.08);border:1px solid rgba(255,96,96,0.25);color:#ff8080;}
+  .form-status.loading{background:rgba(45,156,255,0.06);border:1px solid var(--border);color:var(--text-muted);animation:pulse 1.5s infinite;}
+
+  @media(max-width:640px){
+    #fab{bottom:20px;right:16px;width:50px;height:50px;font-size:24px;}
+    #data-modal{bottom:80px;right:8px;left:8px;width:auto;max-height:calc(100vh - 100px);}
+    .modal-header{padding:16px 16px 12px;}
+    .modal-panel{padding:16px 16px;}
+  }
+
   /* Scanlines */
   body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000;}
   ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--navy-mid)}::-webkit-scrollbar-thumb{background:var(--blue-accent);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--cyan-dim)}
@@ -1003,5 +1137,290 @@ async function init(){
 }
 init();
 </script>
+<!-- ── FLOAT BUTTON + DATA ENTRY MODAL ── -->
+<button id="fab" title="Add data" aria-label="Add data">＋</button>
+
+<!-- Backdrop -->
+<div id="modal-backdrop" onclick="closeModal()"></div>
+
+<!-- Modal -->
+<div id="data-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+  <div class="modal-header">
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;margin-bottom:4px;">// Mission Control</div>
+      <div id="modal-heading" style="font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:var(--star-white);">Add Data</div>
+    </div>
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- Tab switcher -->
+  <div class="modal-tabs">
+    <button class="modal-tab active" id="tab-book" onclick="switchModalTab('book')">📚 Add Book</button>
+    <button class="modal-tab" id="tab-vote" onclick="switchModalTab('vote')">🗳 Submit Rating</button>
+  </div>
+
+  <!-- ── PANEL: ADD BOOK ── -->
+  <div id="panel-book" class="modal-panel active">
+    <p class="modal-hint">Enter 3 book nominations. Check the one the club selected to read.</p>
+    <div id="book-entries">
+      <div class="book-entry" data-n="1">
+        <div class="book-entry-header">
+          <label class="entry-radio-wrap">
+            <input type="radio" name="selected-book" value="1" checked>
+            <span class="radio-label">Selected</span>
+          </label>
+          <span class="entry-num">Book 1</span>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">Title</label>
+            <input type="text" class="modal-input book-title-input" placeholder="Book title..." autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Author</label>
+            <input type="text" class="modal-input book-author-input" placeholder="Author name..." autocomplete="off">
+          </div>
+        </div>
+      </div>
+      <div class="book-entry" data-n="2">
+        <div class="book-entry-header">
+          <label class="entry-radio-wrap">
+            <input type="radio" name="selected-book" value="2">
+            <span class="radio-label">Selected</span>
+          </label>
+          <span class="entry-num">Book 2</span>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">Title</label>
+            <input type="text" class="modal-input book-title-input" placeholder="Book title..." autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Author</label>
+            <input type="text" class="modal-input book-author-input" placeholder="Author name..." autocomplete="off">
+          </div>
+        </div>
+      </div>
+      <div class="book-entry" data-n="3">
+        <div class="book-entry-header">
+          <label class="entry-radio-wrap">
+            <input type="radio" name="selected-book" value="3">
+            <span class="radio-label">Selected</span>
+          </label>
+          <span class="entry-num">Book 3</span>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">Title</label>
+            <input type="text" class="modal-input book-title-input" placeholder="Book title..." autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Author</label>
+            <input type="text" class="modal-input book-author-input" placeholder="Author name..." autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="book-status" class="form-status" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitNewBook()">Add to Sheet ↗</button>
+    </div>
+  </div>
+
+  <!-- ── PANEL: VOTE ── -->
+  <div id="panel-vote" class="modal-panel">
+    <p class="modal-hint">Submit or update a rating for a book you've read.</p>
+    <div class="form-grid-3">
+      <div class="form-field">
+        <label class="field-label">Book</label>
+        <select class="modal-select" id="vote-book">
+          <option value="">Select book...</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label">Your Name</label>
+        <select class="modal-select" id="vote-member">
+          <option value="">Select name...</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="field-label">Score</label>
+        <select class="modal-select" id="vote-score">
+          <option value="">Select score...</option>
+          <option value="4">4 — Great</option>
+          <option value="3">3 — Good</option>
+          <option value="2">2 — Ok</option>
+          <option value="1">1 — Bad / DNF</option>
+        </select>
+      </div>
+    </div>
+    <div id="vote-status" class="form-status" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitVote()">Submit Rating ↗</button>
+    </div>
+  </div>
+
+  <!-- Setup instructions (shown when APPS_SCRIPT_URL is not configured) -->
+  <div id="setup-notice" style="display:none;margin:0 24px 20px;padding:14px 16px;background:rgba(240,192,96,0.06);border:1px solid rgba(240,192,96,0.25);border-radius:4px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">⚠ SETUP REQUIRED — GOOGLE APPS SCRIPT</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.8;">
+      To enable writing to your Google Sheet:<br>
+      1. Open your Google Sheet → <strong>Extensions → Apps Script</strong><br>
+      2. Replace all code with the script below, then click <strong>Deploy → New Deployment → Web App</strong><br>
+      3. Set <em>"Who has access"</em> to <strong>Anyone</strong> → Deploy → copy the Web App URL<br>
+      4. Paste the URL as the value of <code style="color:var(--cyan);">APPS_SCRIPT_URL</code> near the top of this HTML file
+    </div>
+    <details style="margin-top:10px;">
+      <summary style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--cyan);cursor:pointer;">▶ SHOW APPS SCRIPT CODE</summary>
+      <pre id="apps-script-code" style="margin-top:10px;padding:12px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;font-size:11px;color:var(--text-secondary);overflow-x:auto;white-space:pre;line-height:1.6;"></pre>
+    </details>
+  </div>
+</div>
+<script>
+// ── APPS SCRIPT URL ──
+// Paste your deployed Apps Script Web App URL here after setup:
+const APPS_SCRIPT_URL = ''; // e.g. 'https://script.google.com/macros/s/XXXXX/exec'
+
+// Inject apps script code into setup notice
+const _asc = document.getElementById('apps-script-code');
+if (_asc) _asc.textContent = "function doPost(e) {\n  const ss = SpreadsheetApp.openById('1Wz5_tlrzOhGEmR39Nt6Dwl2AN_GAm-gN1YDSKwIJVEM');\n  const sheet = ss.getSheets()[0];\n  const data = JSON.parse(e.postData.contents);\n  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];\n\n  if (data.action === 'addBook') {\n    const newRow = new Array(headers.length).fill('');\n    const set = (col, val) => { const i = headers.indexOf(col); if (i >= 0) newRow[i] = val; };\n    set('Title', data.title);\n    set('Author', data.author);\n    set('Book Option 2', data.option2);\n    set('Book Option 3', data.option3);\n    sheet.appendRow(newRow);\n    return ContentService.createTextOutput(JSON.stringify({ok:true}))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n\n  if (data.action === 'submitVote') {\n    const rows = sheet.getDataRange().getValues();\n    const titleIdx = headers.indexOf('Title');\n    for (let r = 1; r < rows.length; r++) {\n      if (String(rows[r][titleIdx]).trim() === String(data.title).trim()) {\n        const memberIdx = headers.indexOf(data.member);\n        if (memberIdx >= 0) {\n          sheet.getRange(r + 1, memberIdx + 1).setValue(data.score);\n          return ContentService.createTextOutput(JSON.stringify({ok:true}))\n            .setMimeType(ContentService.MimeType.JSON);\n        }\n      }\n    }\n    return ContentService.createTextOutput(JSON.stringify({ok:false, error:'Book not found'}))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n\n  return ContentService.createTextOutput(JSON.stringify({ok:false, error:'Unknown action'}))\n    .setMimeType(ContentService.MimeType.JSON);\n}";
+// Show setup notice if URL not configured
+if (!APPS_SCRIPT_URL) { const sn = document.getElementById('setup-notice'); if(sn) sn.style.display='block'; }
+
+// ── MODAL OPEN/CLOSE ──
+const fab = document.getElementById('fab');
+const modal = document.getElementById('data-modal');
+const backdrop = document.getElementById('modal-backdrop');
+
+fab.addEventListener('click', () => {
+  modal.classList.contains('open') ? closeModal() : openModal();
+});
+
+function openModal() {
+  modal.classList.add('open');
+  backdrop.classList.add('open');
+  fab.classList.add('open');
+  fab.setAttribute('aria-expanded','true');
+  populateVoteDropdowns();
+}
+function closeModal() {
+  modal.classList.remove('open');
+  backdrop.classList.remove('open');
+  fab.classList.remove('open');
+  fab.setAttribute('aria-expanded','false');
+  clearStatuses();
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+function switchModalTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  clearStatuses();
+}
+function clearStatuses() {
+  ['book-status','vote-status'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.style.display='none'; el.className='form-status'; el.textContent=''; }
+  });
+}
+function setStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display='block'; el.className='form-status '+type; el.textContent=msg;
+}
+
+// ── VOTE DROPDOWNS ──
+function populateVoteDropdowns() {
+  const bookSel = document.getElementById('vote-book');
+  const prev = bookSel.value;
+  bookSel.innerHTML = '<option value="">Select book...</option>';
+  (typeof allBooks !== 'undefined' ? allBooks : [])
+    .filter(b => MEMBERS.some(m => b.memberScores[m] === null))
+    .sort((a,b) => a.title.localeCompare(b.title))
+    .forEach(b => {
+      const o = document.createElement('option');
+      o.value = b.title; o.textContent = b.title;
+      bookSel.appendChild(o);
+    });
+  if (prev) bookSel.value = prev;
+  const memSel = document.getElementById('vote-member');
+  if (memSel.children.length <= 1) {
+    (typeof MEMBERS !== 'undefined' ? MEMBERS : []).forEach(m => {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m; memSel.appendChild(o);
+    });
+  }
+}
+
+// ── POST TO APPS SCRIPT ──
+async function postToSheet(payload) {
+  if (!APPS_SCRIPT_URL) throw new Error('APPS_SCRIPT_URL not set — see setup instructions.');
+  // mode:no-cors required for Apps Script; write succeeds even though response is opaque
+  await fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  return { ok: true };
+}
+
+// ── SUBMIT NEW BOOK ──
+async function submitNewBook() {
+  const entries = document.querySelectorAll('.book-entry');
+  const selectedVal = document.querySelector('input[name="selected-book"]:checked')?.value;
+  const books = [...entries].map(e => ({
+    title: e.querySelector('.book-title-input').value.trim(),
+    author: e.querySelector('.book-author-input').value.trim(),
+    n: e.dataset.n
+  }));
+  for (const b of books) {
+    if (!b.title) { setStatus('book-status','error','⚠ Please enter a title for all 3 books.'); return; }
+  }
+  const selected = books.find(b => b.n === selectedVal);
+  const others = books.filter(b => b.n !== selectedVal);
+  setStatus('book-status','loading','// TRANSMITTING TO SHEET...');
+  const btn = document.querySelector('#panel-book .btn-primary');
+  btn.disabled = true;
+  try {
+    await postToSheet({
+      action:'addBook',
+      title: selected.title, author: selected.author,
+      option2: others[0]?.title||'', option3: others[1]?.title||''
+    });
+    setStatus('book-status','success','✓ Book added! Refresh the page to see it in the list.');
+    document.querySelectorAll('.book-title-input,.book-author-input').forEach(i => i.value='');
+    document.querySelector('input[name="selected-book"][value="1"]').checked = true;
+  } catch(err) {
+    setStatus('book-status','error','⚠ '+err.message);
+  } finally { btn.disabled = false; }
+}
+
+// ── SUBMIT VOTE ──
+async function submitVote() {
+  const title = document.getElementById('vote-book').value;
+  const member = document.getElementById('vote-member').value;
+  const score = document.getElementById('vote-score').value;
+  if (!title)  { setStatus('vote-status','error','⚠ Please select a book.'); return; }
+  if (!member) { setStatus('vote-status','error','⚠ Please select your name.'); return; }
+  if (!score)  { setStatus('vote-status','error','⚠ Please select a score.'); return; }
+  setStatus('vote-status','loading','// TRANSMITTING RATING...');
+  const btn = document.querySelector('#panel-vote .btn-primary');
+  btn.disabled = true;
+  try {
+    await postToSheet({ action:'submitVote', title, member, score: Number(score) });
+    setStatus('vote-status','success', '✓ Rating submitted: "'+title+'" — '+member+': '+score+'/4. Refresh to update.');
+    document.getElementById('vote-book').value='';
+    document.getElementById('vote-member').value='';
+    document.getElementById('vote-score').value='';
+  } catch(err) {
+    setStatus('vote-status','error','⚠ '+err.message);
+  } finally { btn.disabled = false; }
+}
+</script>
 </body>
 </html>
+
